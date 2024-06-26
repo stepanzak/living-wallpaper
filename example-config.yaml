@@ -1,0 +1,29 @@
+- type: group
+  chance: 0.5 # 0 .. 1; if omited 1; can only be on the top level items
+  number-of-children-to-show: 2 # if omited all are shown
+  children:
+    - type: layer
+      name: MyLayer1
+    - type: layer
+      name: Mylayer2
+      random-weight: 200 # if omited it'll be 100
+    - type: group
+      children:
+        - type: layer
+          name: MyLayer3
+        - MyLayer4 # simple string will be interpreted as type: layer with name being the string
+    - - head # simple list will be interpreted as type: group with it's items being children
+      - type: group
+        number-of-children-to-show: 1
+        children:
+          - variant1body
+          - variant2body
+          - variant3body
+- type: layer
+  name: planeInTheSky
+  chance: 0.1
+- - l1
+  - l2
+  - l3
+
+- Sun
