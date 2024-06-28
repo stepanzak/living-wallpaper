@@ -6,7 +6,7 @@
       name: MyLayer1
     - type: layer
       name: Mylayer2
-      random-weight: 200 # if omited it'll be 100
+      weight: 200 # if omited it'll be 100
     - type: group
       children:
         - type: layer

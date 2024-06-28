@@ -1,5 +1,5 @@
 from builtins import dict, list, str
-from typing import Any, Dict
+from typing import Any, Dict, ItemsView
 from pyora import Project, TYPE_LAYER, Renderer
 from PIL import Image
 import argparse
@@ -34,11 +34,45 @@ def loadYamlConfig(yaml_config_path) -> dict[str, Any]:
 
 
 def parseConfig(
-    config: dict[str, Any],
+    config: list[Any],
 ) -> list[str]:  # returns a list of layers to be shown in the final image
+    layers = []
+
+    def parseLayer(layer: dict[str, Any]) -> None:
+        if "chance" in layer and random.random() >= layer["chance"]:
+            return
+        layers.append(layer["name"])
+
+    def parseGroup(group: dict[str, Any]) -> None:
+        if "chance" in group and random.random() >= group["chance"]:
+            return
+        if "number-of-children-to-show" in group:
+            children = group["children"]
+            weights = [
+                child["weight"] if type(child) == dict and "weight" in child else 100
+                for child in children
+            ]
+            children = weighted_sample_without_replacement(
+                children, weights, group["number-of-children-to-show"]
+            )
+            # children = [child["name"] if type(child) == dict else child for child in children]
+            for child in children:
+                parseItem(child)
+
+    def parseItem(item):
+        if type(item) == dict:
+            if item["type"] == "layer":
+                parseLayer(item)
+            elif item["type"] == "group":
+                parseGroup(item)
+        elif type(item) == str:
+            parseLayer({"name": item})
+        elif type(item) == list:
+            parseGroup({"children": item})
+
     for item in config:
-        print(item)
-    return ["a"]
+        parseItem(item)
+    return layers
 
 
 def renderORAwithOnlySomeLayers(
@@ -64,4 +98,4 @@ def weighted_sample_without_replacement(population, weights, k):
     return [population[i] for i in order[-k:]]
 
 
-parseConfig(loadYamlConfig(yaml_config_path))
+print(parseConfig(loadYamlConfig(yaml_config_path)))
